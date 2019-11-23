@@ -1,2 +1,2 @@
 # MossNet
-A network-based tool for investigating MOSS results
+A Python package for performing network-based analyses on MOSS results

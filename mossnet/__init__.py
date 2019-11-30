@@ -1,2 +1,3 @@
-from mossnet.build import serialize_moss_results
-__all__ = [serialize_moss_results]
+from mossnet.build import build_MossNet
+from mossnet.MossNet import MossNet
+__all__ = [build_MossNet, MossNet]

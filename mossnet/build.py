@@ -1,17 +1,19 @@
 #! /usr/bin/env python
+from mossnet.MossNet import MossNet
 from bs4 import BeautifulSoup
 from re import search
 from sys import stderr
 from urllib.request import urlopen
 
-def serialize_moss_results(moss_results_links, verbose=False):
-    '''Serialize MOSS results into a 2D dictionary
+def build_MossNet(moss_results_links, verbose=False):
+    '''Download MOSS results into a 3D dictionary
 
     Args:
         ``moss_results_links`` (``list``): A list of MOSS result URLs
 
     Returns:
-        ``dict``: A 2D dictionary ``D[student1][student2][filename] = (percent, student1 HTML, student2 HTML)``
+        ``MossNet``: A ``MossNet`` object
+        ``dict``: A 3D dictionary ``D[student1][student2][filename] = (percent, student1 HTML, student2 HTML)``
     '''
     if isinstance(moss_results_links, str):
         urls = [l.strip() for l in open(moss_results_links.strip()).read().strip().splitlines()]
@@ -60,4 +62,4 @@ def serialize_moss_results(moss_results_links, verbose=False):
             right_html = urlopen(right_url).read().decode().split("<HR>")[1].split("</BODY>")[0].split("<PRE>")[1].split("</PRE>")[0].strip()
             links[email1][email2][curr_filename] = (match_percent, left_html, right_html)
             links[email2][email1][curr_filename] = (match_percent, right_html, left_html)
-    return links
+    return MossNet(links)

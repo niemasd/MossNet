@@ -67,3 +67,11 @@ class MossNet:
             ``MultiDiGraph``: A NetworkX ``DiGraph`` equivalent to this ``MossNet`` object
         '''
         return self.graph.copy()
+
+    def get_nodes(self):
+        '''Returns a ``set`` of node labels in this ``MossNet`` object
+
+        Returns:
+            ``set``: The node labels in this ``MossNet`` object
+        '''
+        return set(self.graph.nodes)

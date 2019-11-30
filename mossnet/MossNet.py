@@ -13,6 +13,8 @@ class MossNet:
         Returns:
             ``MossNet``: A ``MossNet`` object
         '''
+        if isinstance(moss_results_dict, MultiDiGraph):
+            self.graph = moss_results_dict; return
         if isinstance(moss_results_dict, str):
             try:
                 if moss_results_dict.lower().endswith('.gz'):
@@ -57,3 +59,11 @@ class MossNet:
         else:
             f = open(outfile, 'wb')
         dump(out, f); f.close()
+
+    def get_networkx(self):
+        '''Return a NetworkX ``MultiDiGraph`` equivalent to this ``MossNet`` object
+
+        Returns:
+            ``MultiDiGraph``: A NetworkX ``DiGraph`` equivalent to this ``MossNet`` object
+        '''
+        return self.graph.copy()

@@ -13,7 +13,7 @@ def build_MossNet(moss_results_links, verbose=False):
 
     Returns:
         ``MossNet``: A ``MossNet`` object
-        ``dict``: A 3D dictionary ``D[student1][student2][filename] = (percent, student1 HTML, student2 HTML)``
+        ``dict``: A 3D dictionary ``D[student1][student2][filename] = (student1 HTML, student2 HTML)``
     '''
     if isinstance(moss_results_links, str):
         urls = [l.strip() for l in open(moss_results_links.strip()).read().strip().splitlines()]
@@ -35,10 +35,6 @@ def build_MossNet(moss_results_links, verbose=False):
                 stderr.write("Failed to parse row: %s" % row); continue
             if curr_filename is None:
                 curr_filename = cols[0].find_all('a', href=True)[0].text.split('/')[-1].split()[0].strip()
-            try:
-                match_percent = int(cols[0].find_all('a', href=True)[0].text.split('/')[-1].split()[-1][1:-2])
-            except:
-                raise ValueError("Unable to parse as integer: %s" % cols[0].find_all('a', href=True)[0].text.split('/')[-1].split()[-1][1:-2])
             email1,email2 = [cols[i].find_all('a', href=True)[0].text.split('/')[-2] for i in [0,1]]
             if email1 not in links:
                 links[email1] = dict()
@@ -60,6 +56,6 @@ def build_MossNet(moss_results_links, verbose=False):
             right_url = '%s/%s' % (moss_url_base, main_html.split('<FRAME SRC=')[3].split(' ')[0].replace('"',''))
             left_html = urlopen(left_url).read().decode().split("<HR>")[1].split("</BODY>")[0].split("<PRE>")[1].split("</PRE>")[0].strip()
             right_html = urlopen(right_url).read().decode().split("<HR>")[1].split("</BODY>")[0].split("<PRE>")[1].split("</PRE>")[0].strip()
-            links[email1][email2][curr_filename] = (match_percent, left_html, right_html)
-            links[email2][email1][curr_filename] = (match_percent, right_html, left_html)
+            links[email1][email2][curr_filename] = (left_html, right_html)
+            links[email2][email1][curr_filename] = (right_html, left_html)
     return MossNet(links)

@@ -2,13 +2,16 @@
 from gzip import open as gopen
 from networkx import MultiDiGraph
 from pickle import dump,load
+from scipy.stats import binom
 
 class MossNet:
-    def __init__(self, moss_results_dict):
+    def __init__(self, moss_results_dict, num_students=None):
         '''Create a ``MossNet`` object from a 3D dictionary of downloaded MOSS results
 
         Args:
             ``moss_results_dict`` (``dict``): A 3D dictionary of downloaded MOSS results
+
+            ``num_students`` (``int``): The true number of students, including the ones not in the MOSS results. ``None`` means infer from graph
 
         Returns:
             ``MossNet``: A ``MossNet`` object
@@ -40,6 +43,12 @@ class MossNet:
                     except:
                         raise TypeError("moss_results_dict must be a 3D dictionary of MOSS results")
                     self.graph.add_edge(u, v, attr_dict = {'file':f, 'percent':percent, 'html1':html1, 'html2':html2})
+        if num_students is None:
+            self.num_students_val = self.num_nodes()
+        elif num_students < len(self.num_nodes()):
+            raise ValueError("num_students must be >= the number of nodes in the MOSS results")
+        else:
+            self.num_students_val = num_students
 
     def save(self, outfile):
         '''Save this ``MossNet`` object as a 3D dictionary of MOSS results
@@ -75,3 +84,27 @@ class MossNet:
             ``set``: The node labels in this ``MossNet`` object
         '''
         return set(self.graph.nodes)
+
+    def num_nodes(self):
+        '''Returns the number of nodes in this ``MossNet`` object
+
+        Returns:
+            ``int``: The number of nodes in this ``MossNet`` object
+        '''
+        return self.graph.number_of_nodes()
+
+    def num_students(self):
+        '''Returns the number of students in this ``MossNet`` object (equal to ``num_nodes`` unless user specified larger number of students)
+
+        Returns:
+            ``int``: The number of students in this ``MossNet`` object
+        '''
+        return self.num_students_val
+    
+    def num_edges(self):
+        '''Returns the number of (undirected) edges in this ``MossNet`` object (including parallel edges)
+
+        Returns:
+            ``int``: The number of (undirected) edges in this ``MossNet`` object (including parallel edges)
+        '''
+        return int(self.graph.number_of_edges()/2)

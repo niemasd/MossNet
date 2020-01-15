@@ -52,10 +52,12 @@ def build_MossNet(moss_results_links, verbose=False):
             main_html = urlopen(moss_url).read().decode()
             if email1 not in main_html or email2 not in main_html:
                 raise RuntimeError("Didn't find the right email addresses in the match URL: %s" % moss_url)
+            top_url = '%s/%s' % (moss_url_base, main_html.split('<FRAME SRC=')[1].split(' ')[0].replace('"',''))
             left_url = '%s/%s' % (moss_url_base, main_html.split('<FRAME SRC=')[2].split(' ')[0].replace('"',''))
             right_url = '%s/%s' % (moss_url_base, main_html.split('<FRAME SRC=')[3].split(' ')[0].replace('"',''))
+            left_percent,right_percent = [int(part.split('(')[-1]) for part in urlopen(top_url).read().decode().split("%")[:2]]
             left_html = urlopen(left_url).read().decode().split("<HR>")[1].split("</BODY>")[0].split("<PRE>")[1].split("</PRE>")[0].strip()
             right_html = urlopen(right_url).read().decode().split("<HR>")[1].split("</BODY>")[0].split("<PRE>")[1].split("</PRE>")[0].strip()
-            links[email1][email2][curr_filename] = (left_html, right_html)
-            links[email2][email1][curr_filename] = (right_html, left_html)
+            links[email1][email2][curr_filename] = ((left_percent, left_html), (right_percent, right_html))
+            links[email2][email1][curr_filename] = ((right_percent, right_html), (left_percent, left_html))
     return MossNet(links)

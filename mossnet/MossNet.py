@@ -39,10 +39,10 @@ class MossNet:
                     raise TypeError("moss_results_dict must be a 3D dictionary of MOSS results")
                 for f in u_v_links:
                     try:
-                        html1, html2 = u_v_links[f]
+                        left, right = u_v_links[f]
                     except:
                         raise TypeError("moss_results_dict must be a 3D dictionary of MOSS results")
-                    self.graph.add_edge(u, v, attr_dict = {'file':f, 'html1':html1, 'html2':html2})
+                    self.graph.add_edge(u, v, attr_dict = {'file':f, 'left':left, 'right':right})
         if num_students is None:
             self.num_students_val = self.num_nodes()
         elif num_students < len(self.num_nodes()):
@@ -62,7 +62,7 @@ class MossNet:
             for v in self.graph.neighbors(u):
                 u_v_links = dict(); u_edges[v] = u_v_links; u_v_edge_data = self.graph.get_edge_data(u,v)
                 for k in u_v_edge_data:
-                    edge = u_v_edge_data[k]['attr_dict']; u_v_links[edge['file']] = (edge['html1'], edge['html2'])
+                    edge = u_v_edge_data[k]['attr_dict']; u_v_links[edge['file']] = (edge['left'], edge['right'])
         if outfile.lower().endswith('.gz'):
             f = gopen(outfile, mode='wb', compresslevel=9)
         else:

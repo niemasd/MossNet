@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 from gzip import open as gopen
 from networkx import MultiDiGraph
+from os import makedirs
+from os.path import isdir,isfile
 from pickle import dump as pkldump
 from pickle import load as pklload
 from scipy.stats import binom
@@ -127,6 +129,22 @@ class MossNet:
             out = '<html>' + '<br>'.join(out[filename].replace('<html>','').replace('</html>','') for filename in sorted(out.keys())) + '</html>'
         return out
 
+    def num_links(self, u, v):
+        '''Returns the number of links between ``u`` and ``v``
+
+        Args:
+            ``u`` (``str``):
+
+            ``v`` (``str``):
+
+        Returns:
+            ``int``: The number of links between ``u`` and ``v``
+        '''
+        for node in [u,v]:
+            if not self.graph.has_node(node):
+                raise ValueError("Nonexistant node: %s" % node)
+        return len(self.graph.get_edge_data(u,v))
+
     def num_nodes(self):
         '''Returns the number of nodes in this ``MossNet`` object
 
@@ -173,6 +191,36 @@ class MossNet:
             pairs.sort(key=lambda x: len(self.graph.get_edge_data(x[0],x[1])), reverse=True)
         for pair in pairs:
             yield pair
+
+    def export(self, outpath, style='html', verbose=False):
+        '''Export the links in this ``MossNet`` in the specified style
+
+        Args:
+            ``outpath`` (``str``): Path to desired output folder/file
+
+            ``style`` (``str``): Desired output style
+
+            * ``"html"`` to export one HTML file per pair
+
+            ``verbose`` (``bool``): ``True`` to show verbose messages, otherwise ``False``
+        '''
+        if style not in {'html'}:
+            raise ValueError("Invalid export style: %s" % style)
+        if isdir(outpath) or isfile(outpath):
+            raise ValueError("Output path exists: %s" % outpath)
+        if style == 'html':
+            makedirs(outpath)
+        pairs = list(self.traverse_pairs())
+        for i,pair in enumerate(pairs):
+            if verbose:
+                print("Exporting pair %d of %d..." % (i+1, len(pairs)), end='\r')
+            u,v = pair
+            if style == 'html':
+                f = open("%s/%d_%s_%s.html" % (outpath, self.num_links(u,v), u, v), 'w')
+                f.write(self.get_pair(u, v, style='html'))
+                f.close()
+        if verbose:
+            print("Successfully exported %d pairs" % len(pairs))
 
 def load(mossnet_file):
     '''Load a ``MossNet`` object from file

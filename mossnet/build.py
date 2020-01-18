@@ -6,14 +6,15 @@ from sys import stderr
 from urllib.request import urlopen
 
 def build(moss_results_links, verbose=False):
-    '''Download MOSS results into a 3D dictionary
+    '''Download MOSS results into a ``MossNet`` object
 
     Args:
         ``moss_results_links`` (``list``): A list of MOSS result URLs
 
+        ``verbose`` (``bool``): ``True`` to show verbose messages, otherwise ``False``
+
     Returns:
         ``MossNet``: A ``MossNet`` object
-        ``dict``: A 3D dictionary ``D[student1][student2][filename] = (student1 HTML, student2 HTML)``
     '''
     if isinstance(moss_results_links, str):
         urls = [l.strip() for l in open(moss_results_links.strip()).read().strip().splitlines()]

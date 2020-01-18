@@ -45,14 +45,15 @@
 <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
 
 <div class="viewcode-block" id="build"><a class="viewcode-back" href="../../index.html#mossnet.build">[docs]</a><span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">moss_results_links</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Download MOSS results into a 3D dictionary</span>
+    <span class="sd">&#39;&#39;&#39;Download MOSS results into a ``MossNet`` object</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ``moss_results_links`` (``list``): A list of MOSS result URLs</span>
 
+<span class="sd">        ``verbose`` (``bool``): ``True`` to show verbose messages, otherwise ``False``</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        ``MossNet``: A ``MossNet`` object</span>
-<span class="sd">        ``dict``: A 3D dictionary ``D[student1][student2][filename] = (student1 HTML, student2 HTML)``</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moss_results_links</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">moss_results_links</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>

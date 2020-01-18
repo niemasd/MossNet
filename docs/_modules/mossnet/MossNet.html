@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>mossnet.MossNet &#8212; MossNet  documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">MossNet  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mossnet.MossNet</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">gzip</span> <span class="kn">import</span> <span class="nb">open</span> <span class="k">as</span> <span class="n">gopen</span>
+<span class="kn">from</span> <span class="nn">networkx</span> <span class="kn">import</span> <span class="n">MultiDiGraph</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">makedirs</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span><span class="p">,</span><span class="n">isfile</span>
+<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">dump</span> <span class="k">as</span> <span class="n">pkldump</span>
+<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">load</span> <span class="k">as</span> <span class="n">pklload</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">binom</span>
+
+<div class="viewcode-block" id="MossNet"><a class="viewcode-back" href="../../index.html#mossnet.MossNet">[docs]</a><span class="k">class</span> <span class="nc">MossNet</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moss_results_dict</span><span class="p">,</span> <span class="n">num_students</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Create a ``MossNet`` object from a 3D dictionary of downloaded MOSS results</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``moss_results_dict`` (``dict``): A 3D dictionary of downloaded MOSS results</span>
+
+<span class="sd">            ``num_students`` (``int``): The true number of students, including the ones not in the MOSS results. ``None`` means infer from graph</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``MossNet``: A ``MossNet`` object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moss_results_dict</span><span class="p">,</span> <span class="n">MultiDiGraph</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">moss_results_dict</span><span class="p">;</span> <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moss_results_dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">moss_results_dict</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
+                    <span class="n">moss_results_dict</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">gopen</span><span class="p">(</span><span class="n">moss_results_dict</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">moss_results_dict</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">moss_results_dict</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to load dictionary: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moss_results_dict</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moss_results_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;moss_results_dict must be a 3D dictionary of MOSS results&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">MultiDiGraph</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">moss_results_dict</span><span class="p">:</span>
+            <span class="n">u_edges</span> <span class="o">=</span> <span class="n">moss_results_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u_edges</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;moss_results_dict must be a 3D dictionary of MOSS results&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u_edges</span><span class="p">:</span>
+                <span class="n">u_v_links</span> <span class="o">=</span> <span class="n">u_edges</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u_edges</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;moss_results_dict must be a 3D dictionary of MOSS results&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">u_v_links</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">u_v_links</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;moss_results_dict must be a 3D dictionary of MOSS results&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">attr_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;file&#39;</span><span class="p">:</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span><span class="n">left</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span><span class="n">right</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">num_students</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_students_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">num_students</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_students must be &gt;= the number of nodes in the MOSS results&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_students_val</span> <span class="o">=</span> <span class="n">num_students</span>
+
+<div class="viewcode-block" id="MossNet.save"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save this ``MossNet`` object as a 3D dictionary of MOSS results</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``outfile`` (``str``): The desired output file&#39;s path</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">u_edges</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">();</span> <span class="n">out</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_edges</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+                <span class="n">u_v_links</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">();</span> <span class="n">u_edges</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_v_links</span><span class="p">;</span> <span class="n">u_v_edge_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">u_v_edge_data</span><span class="p">:</span>
+                    <span class="n">edge</span> <span class="o">=</span> <span class="n">u_v_edge_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;attr_dict&#39;</span><span class="p">];</span> <span class="n">u_v_links</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">],</span> <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">outfile</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">gopen</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="n">compresslevel</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+        <span class="n">pkldump</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MossNet.get_networkx"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.get_networkx">[docs]</a>    <span class="k">def</span> <span class="nf">get_networkx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return a NetworkX ``MultiDiGraph`` equivalent to this ``MossNet`` object</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``MultiDiGraph``: A NetworkX ``DiGraph`` equivalent to this ``MossNet`` object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MossNet.get_nodes"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.get_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns a ``set`` of node labels in this ``MossNet`` object</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``set``: The node labels in this ``MossNet`` object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MossNet.get_pair"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.get_pair">[docs]</a>    <span class="k">def</span> <span class="nf">get_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;tuples&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the links between nodes ``u`` and ``v``</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``u`` (``str``): A node label</span>
+
+<span class="sd">            ``v`` (``str``): A node label not equal to ``u``</span>
+
+<span class="sd">            ``style`` (``str``): The representation of a given link</span>
+
+<span class="sd">            * ``&quot;tuples&quot;``: Links are ``((u_percent, u_html), (v_percent, v_html))`` tuples</span>
+
+<span class="sd">            * ``&quot;html&quot;``: Links are HTML representation (one HTML for all links)</span>
+
+<span class="sd">            * ``&quot;htmls&quot;``: Links are HTML representations (one HTML per link)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``dict``: The links between ``u`` and ``v`` (keys are filenames)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;tuples&#39;</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;htmls&#39;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid link style: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">style</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;u and v cannot be equal: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">u</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Nonexistant node: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">node</span><span class="p">)</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">links</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">links</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;attr_dict&#39;</span><span class="p">][</span><span class="s1">&#39;file&#39;</span><span class="p">]):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">links</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;attr_dict&#39;</span><span class="p">]</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span>
+            <span class="n">u_percent</span><span class="p">,</span> <span class="n">u_html</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span>
+            <span class="n">v_percent</span><span class="p">,</span> <span class="n">v_html</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;tuples&#39;</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">u_percent</span><span class="p">,</span> <span class="n">u_html</span><span class="p">),</span> <span class="p">(</span><span class="n">v_percent</span><span class="p">,</span> <span class="n">v_html</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;htmls&#39;</span><span class="p">}:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&lt;html&gt;&lt;table style=&quot;width:100</span><span class="si">%%</span><span class="s1">&quot; border=&quot;1&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;center&gt;&lt;b&gt;</span><span class="si">%s</span><span class="s1">&lt;/b&gt;&lt;/center&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s1"> (</span><span class="si">%d%%</span><span class="s1">)&lt;/td&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s1"> (</span><span class="si">%d%%</span><span class="s1">)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;pre&gt;</span><span class="si">%s</span><span class="s1">&lt;/pre&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;</span><span class="si">%s</span><span class="s1">&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/html&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">u_percent</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v_percent</span><span class="p">,</span> <span class="n">u_html</span><span class="p">,</span> <span class="n">v_html</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;html&#39;</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;&lt;html&gt;&#39;</span> <span class="o">+</span> <span class="s1">&#39;&lt;br&gt;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;html&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;/html&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">+</span> <span class="s1">&#39;&lt;/html&gt;&#39;</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="MossNet.num_links"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.num_links">[docs]</a>    <span class="k">def</span> <span class="nf">num_links</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the number of links between ``u`` and ``v``</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``u`` (``str``):</span>
+
+<span class="sd">            ``v`` (``str``):</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``int``: The number of links between ``u`` and ``v``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Nonexistant node: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MossNet.num_nodes"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.num_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">num_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the number of nodes in this ``MossNet`` object</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``int``: The number of nodes in this ``MossNet`` object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MossNet.num_students"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.num_students">[docs]</a>    <span class="k">def</span> <span class="nf">num_students</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the number of students in this ``MossNet`` object (equal to ``num_nodes`` unless user specified larger number of students)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``int``: The number of students in this ``MossNet`` object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_students_val</span></div>
+    
+<div class="viewcode-block" id="MossNet.num_edges"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.num_edges">[docs]</a>    <span class="k">def</span> <span class="nf">num_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the number of (undirected) edges in this ``MossNet`` object (including parallel edges)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``int``: The number of (undirected) edges in this ``MossNet`` object (including parallel edges)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MossNet.traverse_pairs"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.traverse_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">traverse_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;descending&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Iterate over student pairs</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``order`` (``str``): Order to sort pairs in iteration</span>
+
+<span class="sd">            * ``None`` to not sort (may be faster for large/dense graphs)</span>
+
+<span class="sd">            * ``&quot;ascending&quot;`` to sort in ascending order of number of links</span>
+
+<span class="sd">            * ``&quot;descending&quot;`` to sort in descending order of number of links</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;ascending&#39;</span><span class="p">,</span> <span class="s1">&#39;descending&#39;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid order: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">order</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;ascending&#39;</span><span class="p">:</span>
+            <span class="n">pairs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="k">elif</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;descending&#39;</span><span class="p">:</span>
+            <span class="n">pairs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">pair</span></div>
+
+<div class="viewcode-block" id="MossNet.export"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outpath</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Export the links in this ``MossNet`` in the specified style</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``outpath`` (``str``): Path to desired output folder/file</span>
+
+<span class="sd">            ``style`` (``str``): Desired output style</span>
+
+<span class="sd">            * ``&quot;html&quot;`` to export one HTML file per pair</span>
+
+<span class="sd">            ``verbose`` (``bool``): ``True`` to show verbose messages, otherwise ``False``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;html&#39;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid export style: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">style</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isfile</span><span class="p">(</span><span class="n">outpath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Output path exists: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outpath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;html&#39;</span><span class="p">:</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">traverse_pairs</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting pair </span><span class="si">%d</span><span class="s2"> of </span><span class="si">%d</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">u</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">pair</span>
+            <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;html&#39;</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%d</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">.html&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_links</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pair</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;html&#39;</span><span class="p">))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully exported </span><span class="si">%d</span><span class="s2"> pairs&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span></div></div>
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../index.html#mossnet.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">mossnet_file</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Load a ``MossNet`` object from file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ``mossnet_file`` (``str``): The desired input file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``MossNet``: The resulting ``MossNet`` object</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">mossnet_file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MossNet</span><span class="p">(</span><span class="n">pklload</span><span class="p">(</span><span class="n">gopen</span><span class="p">(</span><span class="n">mossnet_file</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MossNet</span><span class="p">(</span><span class="n">pklload</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">mossnet_file</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">MossNet  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Niema Moshiri.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+    </div>
+  </body>
+</html>

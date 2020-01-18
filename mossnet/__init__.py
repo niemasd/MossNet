@@ -1,3 +1,3 @@
-from mossnet.build import build_MossNet
-from mossnet.MossNet import MossNet
-__all__ = [build_MossNet, MossNet]
+from mossnet.build import build
+from mossnet.MossNet import MossNet,load
+__all__ = [build, load, MossNet]

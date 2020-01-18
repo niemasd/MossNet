@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 from gzip import open as gopen
 from networkx import MultiDiGraph
-from pickle import dump,load
+from pickle import dump as pkldump
+from pickle import load as pklload
 from scipy.stats import binom
 
 class MossNet:
@@ -67,7 +68,7 @@ class MossNet:
             f = gopen(outfile, mode='wb', compresslevel=9)
         else:
             f = open(outfile, 'wb')
-        dump(out, f); f.close()
+        pkldump(out, f); f.close()
 
     def get_networkx(self):
         '''Return a NetworkX ``MultiDiGraph`` equivalent to this ``MossNet`` object
@@ -84,6 +85,47 @@ class MossNet:
             ``set``: The node labels in this ``MossNet`` object
         '''
         return set(self.graph.nodes)
+
+    def get_pair(self, u, v, style='tuples'):
+        '''Returns the links between nodes ``u`` and ``v``
+
+        Args:
+            ``u`` (``str``): A node label
+
+            ``v`` (``str``): A node label not equal to ``u``
+
+            ``style`` (``str``): The representation of a given link
+
+            * ``"tuples"``: Links are ``((u_percent, u_html), (v_percent, v_html))`` tuples
+
+            * ``"html"``: Links are HTML representation (one HTML for all links)
+
+            * ``"htmls"``: Links are HTML representations (one HTML per link)
+
+        Returns:
+            ``dict``: The links between ``u`` and ``v`` (keys are filenames)
+        '''
+        if style not in {'tuples', 'html', 'htmls'}:
+            raise ValueError("Invalid link style: %s" % style)
+        if u == v:
+            raise ValueError("u and v cannot be equal: %s" % u)
+        for node in [u,v]:
+            if not self.graph.has_node(node):
+                raise ValueError("Nonexistant node: %s" % node)
+        links = self.graph.get_edge_data(u,v)
+        out = dict()
+        for k in sorted(links.keys(), key=lambda x: links[x]['attr_dict']['file']):
+            d = links[k]['attr_dict']
+            filename = d['file']
+            u_percent, u_html = d['left']
+            v_percent, v_html = d['right']
+            if style == 'tuples':
+                out[filename] = ((u_percent, u_html), (v_percent, v_html))
+            elif style in {'html', 'htmls'}:
+                out[filename] = '<html><table style="width:100%%" border="1"><tr><td colspan="2"><center><b>%s</b></center></td></tr><tr><td>%s (%d%%)</td><td>%s (%d%%)</td></tr><tr><td><pre>%s</pre></td><td><pre>%s</pre></td></tr></table></html>' % (filename, u, u_percent, v, v_percent, u_html, v_html)
+        if style == 'html':
+            out = '<html>' + '<br>'.join(out[filename].replace('<html>','').replace('</html>','') for filename in sorted(out.keys())) + '</html>'
+        return out
 
     def num_nodes(self):
         '''Returns the number of nodes in this ``MossNet`` object
@@ -108,3 +150,40 @@ class MossNet:
             ``int``: The number of (undirected) edges in this ``MossNet`` object (including parallel edges)
         '''
         return int(self.graph.number_of_edges()/2)
+
+    def traverse_pairs(self, order='descending'):
+        '''Iterate over student pairs
+
+        Args:
+            ``order`` (``str``): Order to sort pairs in iteration
+
+            * ``None`` to not sort (may be faster for large/dense graphs)
+
+            * ``"ascending"`` to sort in ascending order of number of links
+
+            * ``"descending"`` to sort in descending order of number of links
+        '''
+        if order not in {None, 'None', 'none', 'ascending', 'descending'}:
+            raise ValueError("Invalid order: %s" % order)
+        nodes = list(self.graph.nodes)
+        pairs = [(u,v) for u in self.graph.nodes for v in self.graph.neighbors(u) if u < v]
+        if order == 'ascending':
+            pairs.sort(key=lambda x: len(self.graph.get_edge_data(x[0],x[1])))
+        elif order == 'descending':
+            pairs.sort(key=lambda x: len(self.graph.get_edge_data(x[0],x[1])), reverse=True)
+        for pair in pairs:
+            yield pair
+
+def load(mossnet_file):
+    '''Load a ``MossNet`` object from file
+
+    Args:
+        ``mossnet_file`` (``str``): The desired input file
+
+    Returns:
+        ``MossNet``: The resulting ``MossNet`` object
+    '''
+    if mossnet_file.lower().endswith('.gz'):
+        return MossNet(pklload(gopen(mossnet_file)))
+    else:
+        return MossNet(pklload(open(mossnet_file,'rb')))

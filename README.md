@@ -22,6 +22,7 @@ from mossnet import build # load mossnet
 moss_URLs = [...] # one URL for each MOSS report for each file for this assignment
 mn = build(moss_URLs) # creates MossNet object
 mn.export("html_output", style='html', verbose=True) # output HTML reports for each pair of students
+mn.save("my_mossnet.pkl") # save MossNet object in "my_mossnet.pkl"
 ```
 
 Full documentation can be found at [https://niemasd.github.io/MossNet/](https://niemasd.github.io/MossNet/), and more examples can be found in the [MossNet Wiki](https://github.com/niemasd/MossNet/wiki).

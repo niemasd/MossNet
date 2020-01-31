@@ -184,27 +184,94 @@ class MossNet:
 
             ``style`` (``str``): Desired output style
 
+            * ``"dot"`` to export as a GraphViz DOT file
+
+            * ``"gexf"`` to export as a Graph Exchange XML Format (GEXF) file
+
             * ``"html"`` to export one HTML file per pair
 
             ``verbose`` (``bool``): ``True`` to show verbose messages, otherwise ``False``
         '''
-        if style not in {'html'}:
+        if style not in {'dot', 'gexf', 'html'}:
             raise ValueError("Invalid export style: %s" % style)
         if isdir(outpath) or isfile(outpath):
             raise ValueError("Output path exists: %s" % outpath)
+
+        # export as folder of HTML files
         if style == 'html':
+            pairs = list(self.traverse_pairs())
             makedirs(outpath)
-        pairs = list(self.traverse_pairs())
-        for i,pair in enumerate(pairs):
+            for i,pair in enumerate(pairs):
+                if verbose:
+                    print("Exporting pair %d of %d..." % (i+1, len(pairs)), end='\r')
+                u,v = pair
+                if style == 'html':
+                    f = open("%s/%d_%s_%s.html" % (outpath, self.num_links(u,v), u, v), 'w')
+                    f.write(self.get_pair(u, v, style='html'))
+                    f.close()
             if verbose:
-                print("Exporting pair %d of %d..." % (i+1, len(pairs)), end='\r')
-            u,v = pair
-            if style == 'html':
-                f = open("%s/%d_%s_%s.html" % (outpath, self.num_links(u,v), u, v), 'w')
-                f.write(self.get_pair(u, v, style='html'))
-                f.close()
-        if verbose:
-            print("Successfully exported %d pairs" % len(pairs))
+                print("Successfully exported %d pairs" % len(pairs))
+
+        # export as GraphViz DOT or a GEXF file
+        elif style in {'dot', 'gexf'}:
+            if verbose:
+                print("Computing colors...", end='')
+            max_links = max(self.num_links(u,v) for u,v in self.traverse_pairs())
+            try:
+                from seaborn import color_palette
+            except:
+                raise RuntimeError("Exporting as a DOT or GEXF file currently requires seaborn")
+            pal = color_palette("Reds", max_links)
+            if verbose:
+                print(" done")
+                print("Computing node information...", end='')
+            nodes = list(self.get_nodes())
+            index = {u:i for i,u in enumerate(nodes)}
+            if verbose:
+                print(" done")
+                print("Writing output file...", end='')
+            outfile = open(outpath, 'w')
+            if style == 'dot':
+                pal = [str(c).upper() for c in pal.as_hex()]
+                outfile.write("graph G {\n")
+                for u in nodes:
+                    outfile.write('  node%d[label="%s"]\n' % (index[u], u))
+                for u,v in self.traverse_pairs():
+                    curr_num_links = self.num_links(u,v)
+                    if curr_num_links == 0:
+                        continue
+                    outfile.write('  node%d -- node%d[color="%s"]\n' % (index[u], index[v], pal[curr_num_links-1]))
+                outfile.write('}\n')
+            elif style == 'gexf':
+                from datetime import datetime
+                pal = [(int(255*c[0]), int(255*c[1]), int(255*c[2])) for c in pal]
+                outfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                outfile.write('<gexf xmlns="http://www.gexf.net/1.3draft" xmlns:viz="http://www.gexf.net/1.3draft/viz">\n')
+                outfile.write('  <meta lastmodifieddate="%s">\n' % datetime.today().strftime('%Y-%m-%d'))
+                outfile.write('    <creator>MossNet</creator>\n')
+                outfile.write('    <description>A MossNet network exported to GEXF</description>\n')
+                outfile.write('  </meta>\n')
+                outfile.write('  <graph mode="static" defaultedgetype="undirected">\n')
+                outfile.write('    <nodes>\n')
+                for u in nodes:
+                    outfile.write('      <node id="%d" label="%s"/>\n' % (index[u], u))
+                outfile.write('    </nodes>\n')
+                outfile.write('    <edges>\n')
+                for i,pair in enumerate(self.traverse_pairs()):
+                    u,v = pair
+                    curr_num_links = self.num_links(u,v)
+                    if curr_num_links == 0:
+                        continue
+                    color = pal[curr_num_links-1]
+                    outfile.write('      <edge id="%d" source="%d" target="%d">\n' % (i, index[u], index[v]))
+                    outfile.write('        <viz:color r="%d" g="%d" b="%d"/>\n' % (color[0], color[1], color[2]))
+                    outfile.write('      </edge>\n')
+                outfile.write('    </edges>\n')
+                outfile.write('  </graph>\n')
+                outfile.write('</gexf>\n')
+            outfile.close()
+            if verbose:
+                print(" done")
 
 def load(mossnet_file):
     '''Load a ``MossNet`` object from file

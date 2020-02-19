@@ -64,6 +64,14 @@ class MossNet:
             f = open(outfile, 'wb')
         pkldump(out, f); f.close()
 
+    def __add__(self, o):
+        if not isinstance(o, MossNet):
+            raise TypeError("unsupported operand type(s) for +: 'MossNet' and '%s'" % type(o).__name__)
+        g = MultiDiGraph()
+        g.add_edges_from(list(self.graph.edges(data=True)) + list(o.graph.edges(data=True)))
+        g.add_nodes_from(list(self.graph.nodes(data=True)) + list(o.graph.nodes(data=True)))
+        return MossNet(g)
+
     def get_networkx(self):
         '''Return a NetworkX ``MultiDiGraph`` equivalent to this ``MossNet`` object
 
@@ -176,13 +184,15 @@ class MossNet:
         for pair in pairs:
             yield pair
 
-    def export(self, outpath, style='html', verbose=False):
+    def export(self, outpath, style='html', gte=0, verbose=False):
         '''Export the links in this ``MossNet`` in the specified style
 
         Args:
             ``outpath`` (``str``): Path to desired output folder/file
 
             ``style`` (``str``): Desired output style
+
+            ``gte`` (``int``): The minimum number of links for an edge to be exported
 
             * ``"dot"`` to export as a GraphViz DOT file
 
@@ -196,6 +206,10 @@ class MossNet:
             raise ValueError("Invalid export style: %s" % style)
         if isdir(outpath) or isfile(outpath):
             raise ValueError("Output path exists: %s" % outpath)
+        if not isinstance(gte, int):
+            raise TypeError("'gte' must be an 'int', but you provided a '%s'" % type(gte).__name__)
+        if gte < 0:
+            raise ValueError("'gte' must be non-negative, but yours was %d" % gte)
 
         # export as folder of HTML files
         if style == 'html':
@@ -205,6 +219,8 @@ class MossNet:
                 if verbose:
                     print("Exporting pair %d of %d..." % (i+1, len(pairs)), end='\r')
                 u,v = pair
+                if self.num_links(u,v) < gte:
+                    continue
                 if style == 'html':
                     f = open("%s/%d_%s_%s.html" % (outpath, self.num_links(u,v), u, v), 'w')
                     f.write(self.get_pair(u, v, style='html'))
@@ -238,7 +254,7 @@ class MossNet:
                     outfile.write('  node%d[label="%s"]\n' % (index[u], u))
                 for u,v in self.traverse_pairs():
                     curr_num_links = self.num_links(u,v)
-                    if curr_num_links == 0:
+                    if curr_num_links < gte:
                         continue
                     outfile.write('  node%d -- node%d[color="%s"]\n' % (index[u], index[v], pal[curr_num_links-1]))
                 outfile.write('}\n')

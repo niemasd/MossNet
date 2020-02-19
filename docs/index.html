@@ -71,11 +71,12 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="mossnet.MossNet.export">
-<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">outpath</em>, <em class="sig-param">style='html'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.export" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">outpath</em>, <em class="sig-param">style='html'</em>, <em class="sig-param">gte=0</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export the links in this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> in the specified style</p>
 <dl>
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">outpath</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Path to desired output folder/file</p>
 <p><code class="docutils literal notranslate"><span class="pre">style</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Desired output style</p>
+<p><code class="docutils literal notranslate"><span class="pre">gte</span></code> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The minimum number of links for an edge to be exported</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;dot&quot;</span></code> to export as a GraphViz DOT file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;gexf&quot;</span></code> to export as a Graph Exchange XML Format (GEXF) file</p></li>

@@ -14,7 +14,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 setup(
     name='mossnet',   # Required
-    version='0.0.11',  # Required
+    version='0.0.12',  # Required
     description='A Python package for performing network analyses on MOSS results',  # Required
     long_description='',  # Optional
     long_description_content_type='text/plain',  # Optional (see note above)

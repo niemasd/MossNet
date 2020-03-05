@@ -160,6 +160,18 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="mossnet.MossNet.outlier_pairs">
+<code class="sig-name descname">outlier_pairs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.outlier_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.outlier_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict which student pairs are outliers (i.e., too many problem similarities).
+The distribution of number of links between student pairs (i.e., histogram) is modeled as y = A/(B^x),
+where x = a number of links, and y = the number of student pairs with that many links</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">list</span></code> of <code class="docutils literal notranslate"><span class="pre">tuple</span></code>: The student pairs expected to be outliers (in decreasing order of significance)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="mossnet.MossNet.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">outfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object as a 3D dictionary of MOSS results</p>

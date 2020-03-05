@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from gzip import open as gopen
+from math import log
 from networkx import MultiDiGraph
 from os import makedirs
 from os.path import isdir,isfile
@@ -160,6 +161,36 @@ class MossNet:
             ``int``: The number of (undirected) edges in this ``MossNet`` object (including parallel edges)
         '''
         return int(self.graph.number_of_edges()/2)
+
+    def outlier_pairs(self):
+        '''Predict which student pairs are outliers (i.e., too many problem similarities).
+        The distribution of number of links between student pairs (i.e., histogram) is modeled as y = A/(B^x),
+        where x = a number of links, and y = the number of student pairs with that many links
+
+        Returns:
+            ``list`` of ``tuple``: The student pairs expected to be outliers (in decreasing order of significance)
+        '''
+        links = dict() # key = number of links; value = set of student pairs that have that number of links
+        for u,v in self.traverse_pairs():
+            n = self.num_links(u,v)
+            if n not in links:
+                links[n] = set()
+            links[n].add((u,v))
+        mult = list(); min_links = min(len(s) for s in links.values()); max_links = max(len(s) for s in links.values())
+        for i in range(min_links, max_links):
+            if i not in links or i+1 not in links or len(links[i+1]) > len(links[i]):
+                break
+            mult.append(float(len(links[i]))/len(links[i+1]))
+        B = sum(mult)/len(mult)
+        A = len(links[min_links]) * (B**min_links)
+        n_cutoff = log(A)/log(B)
+        out = list()
+        for n in sorted(links.keys(), reverse=True):
+            if n < n_cutoff:
+                break
+            for u,v in links[n]:
+                out.append((n,u,v))
+        return out
 
     def traverse_pairs(self, order='descending'):
         '''Iterate over student pairs

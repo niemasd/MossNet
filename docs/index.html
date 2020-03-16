@@ -127,6 +127,18 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="mossnet.MossNet.get_summary">
+<code class="sig-name descname">get_summary</code><span class="sig-paren">(</span><em class="sig-param">style='html'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a summary of this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code></p>
+<dl class="simple">
+<dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">style</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The representation of this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code></p>
+</dd>
+<dt>Returns:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">dict</span></code>: A summary of this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code>, where keys are filenames</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="mossnet.MossNet.num_edges">
 <code class="sig-name descname">num_edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.num_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.num_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of (undirected) edges in this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object (including parallel edges)</p>
@@ -141,8 +153,8 @@
 <code class="sig-name descname">num_links</code><span class="sig-paren">(</span><em class="sig-param">u</em>, <em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.num_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.num_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of links between <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p>
 <dl>
-<dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">u</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>):</p>
-<p><code class="docutils literal notranslate"><span class="pre">v</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>):</p>
+<dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">u</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): A node label</p>
+<p><code class="docutils literal notranslate"><span class="pre">v</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): A node label not equal to <code class="docutils literal notranslate"><span class="pre">u</span></code></p>
 </dd>
 <dt>Returns:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">int</span></code>: The number of links between <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p>
 </dd>

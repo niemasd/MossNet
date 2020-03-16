@@ -169,13 +169,43 @@
             <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;&lt;html&gt;&#39;</span> <span class="o">+</span> <span class="s1">&#39;&lt;br&gt;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;html&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;/html&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">+</span> <span class="s1">&#39;&lt;/html&gt;&#39;</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
+<div class="viewcode-block" id="MossNet.get_summary"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.get_summary">[docs]</a>    <span class="k">def</span> <span class="nf">get_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;html&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns a summary of this ``MossNet``</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ``style`` (``str``): The representation of this ``MossNet``</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``dict``: A summary of this ``MossNet``, where keys are filenames</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;html&#39;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid summary style: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">style</span><span class="p">)</span>
+        <span class="n">links_by_file</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="c1"># links_by_file[filename] = list of (u, u_percent, v, v_percent) tuples</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">traverse_pairs</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">links</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;attr_dict&#39;</span><span class="p">]</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span>
+                <span class="n">u_percent</span><span class="p">,</span> <span class="n">u_html</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span>
+                <span class="n">v_percent</span><span class="p">,</span> <span class="n">v_html</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">links_by_file</span><span class="p">:</span>
+                    <span class="n">links_by_file</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                <span class="n">links_by_file</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">u_percent</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v_percent</span><span class="p">))</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">links_by_file</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&lt;html&gt;&lt;table style=&quot;width:100</span><span class="si">%%</span><span class="s1">&quot; border=&quot;1&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;center&gt;&lt;b&gt;</span><span class="si">%s</span><span class="s1">&lt;/b&gt;&lt;/center&gt;&lt;/td&gt;&lt;/tr&gt;&#39;</span> <span class="o">%</span> <span class="n">filename</span>
+            <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">links_by_file</span><span class="p">[</span><span class="n">filename</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">])):</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39;&lt;tr&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s1"> (</span><span class="si">%d%%</span><span class="s1">)&lt;/td&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s1"> (</span><span class="si">%d%%</span><span class="s1">)&lt;/td&gt;&lt;/tr&gt;&#39;</span> <span class="o">%</span> <span class="n">tup</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/table&gt;&lt;/html&gt;&#39;</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
 <div class="viewcode-block" id="MossNet.num_links"><a class="viewcode-back" href="../../index.html#mossnet.MossNet.num_links">[docs]</a>    <span class="k">def</span> <span class="nf">num_links</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Returns the number of links between ``u`` and ``v``</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ``u`` (``str``):</span>
+<span class="sd">            ``u`` (``str``): A node label</span>
 
-<span class="sd">            ``v`` (``str``):</span>
+<span class="sd">            ``v`` (``str``): A node label not equal to ``u``</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ``int``: The number of links between ``u`` and ``v``</span>
@@ -283,8 +313,14 @@
 
         <span class="c1"># export as folder of HTML files</span>
         <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;html&#39;</span><span class="p">:</span>
-            <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">traverse_pairs</span><span class="p">())</span>
+            <span class="n">summaries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_summary</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;html&#39;</span><span class="p">)</span>
+            <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">traverse_pairs</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
             <span class="n">makedirs</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/summary&#39;</span> <span class="o">%</span> <span class="n">outpath</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">summaries</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/summary/</span><span class="si">%s</span><span class="s2">.html&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">summaries</span><span class="p">[</span><span class="n">filename</span><span class="p">])</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting pair </span><span class="si">%d</span><span class="s2"> of </span><span class="si">%d</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>

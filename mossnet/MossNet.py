@@ -130,13 +130,43 @@ class MossNet:
             out = '<html>' + '<br>'.join(out[filename].replace('<html>','').replace('</html>','') for filename in sorted(out.keys())) + '</html>'
         return out
 
+    def get_summary(self, style='html'):
+        '''Returns a summary of this ``MossNet``
+
+        Args:
+            ``style`` (``str``): The representation of this ``MossNet``
+
+        Returns:
+            ``dict``: A summary of this ``MossNet``, where keys are filenames
+        '''
+        if style not in {'html'}:
+            raise ValueError("Invalid summary style: %s" % style)
+        links_by_file = dict() # links_by_file[filename] = list of (u, u_percent, v, v_percent) tuples
+        for u,v in self.traverse_pairs(order=None):
+            links = self.graph.get_edge_data(u,v)
+            for k in links:
+                d = links[k]['attr_dict']
+                filename = d['file']
+                u_percent, u_html = d['left']
+                v_percent, v_html = d['right']
+                if filename not in links_by_file:
+                    links_by_file[filename] = list()
+                links_by_file[filename].append((u, u_percent, v, v_percent))
+        out = dict()
+        for filename in links_by_file:
+            out[filename] = '<html><table style="width:100%%" border="1"><tr><td colspan="2"><center><b>%s</b></center></td></tr>' % filename
+            for tup in sorted(links_by_file[filename], reverse=True, key=lambda x: max(x[1],x[3])):
+                out[filename] += '<tr><td>%s (%d%%)</td><td>%s (%d%%)</td></tr>' % tup
+            out[filename] += '</table></html>'
+        return out
+
     def num_links(self, u, v):
         '''Returns the number of links between ``u`` and ``v``
 
         Args:
-            ``u`` (``str``):
+            ``u`` (``str``): A node label
 
-            ``v`` (``str``):
+            ``v`` (``str``): A node label not equal to ``u``
 
         Returns:
             ``int``: The number of links between ``u`` and ``v``
@@ -244,8 +274,14 @@ class MossNet:
 
         # export as folder of HTML files
         if style == 'html':
-            pairs = list(self.traverse_pairs())
+            summaries = self.get_summary(style='html')
+            pairs = list(self.traverse_pairs(order=None))
             makedirs(outpath)
+            makedirs('%s/summary' % outpath)
+            for filename in summaries:
+                f = open("%s/summary/%s.html" % (outpath, filename), 'w')
+                f.write(summaries[filename])
+                f.close()
             for i,pair in enumerate(pairs):
                 if verbose:
                     print("Exporting pair %d of %d..." % (i+1, len(pairs)), end='\r')

@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from re import search,sub
 from sys import stderr
 from urllib.request import urlopen
+from warnings import warn
 
 def build(moss_results_links, verbose=False):
     '''Download MOSS results into a ``MossNet`` object
@@ -48,7 +49,7 @@ def build(moss_results_links, verbose=False):
             if curr_filename is None:
                 raise ValueError("Failed to parse filename from results URL: %s" % url)
             if curr_filename in links[email1][email2] or curr_filename in links[email2][email1]:
-                raise ValueError("File '%s' found for (%s, %s) multiple times" % (curr_filename, email1, email2))
+                warn("File '%s' found for (%s, %s) multiple times. Taking latest version" % (curr_filename, email1, email2))
             moss_url_base = '/'.join(moss_url.rstrip('/').split('/')[:-1])
             main_html = urlopen(moss_url).read().decode()
             if email1 not in main_html or email2 not in main_html:

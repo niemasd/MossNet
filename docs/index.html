@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>mossnet package &#8212; MossNet  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -40,9 +40,9 @@
 <p><a class="reference external" href="https://github.com/niemasd/MossNet">MossNet</a> is a Python library for performing network analyses on MOSS results</p>
 <div class="section" id="module-mossnet">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mossnet" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="mossnet.build">
-<code class="sig-prename descclassname">mossnet.</code><code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param">moss_results_links</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/build.html#build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">mossnet.</code><code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">moss_results_links</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/build.html#build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download MOSS results into a <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object</p>
 <dl>
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">moss_results_links</span></code> (<code class="docutils literal notranslate"><span class="pre">list</span></code>): A list of MOSS result URLs</p>
@@ -53,9 +53,9 @@
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="mossnet.load">
-<code class="sig-prename descclassname">mossnet.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">mossnet_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">mossnet.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mossnet_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object from file</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">mossnet_file</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The desired input file</p>
@@ -65,13 +65,13 @@
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="mossnet.MossNet">
-<em class="property">class </em><code class="sig-prename descclassname">mossnet.</code><code class="sig-name descname">MossNet</code><span class="sig-paren">(</span><em class="sig-param">moss_results_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mossnet.</code><code class="sig-name descname">MossNet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">moss_results_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.export">
-<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">outpath</em>, <em class="sig-param">style='html'</em>, <em class="sig-param">gte=0</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.export" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outpath</span></em>, <em class="sig-param"><span class="n">style</span><span class="o">=</span><span class="default_value">'html'</span></em>, <em class="sig-param"><span class="n">gte</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export the links in this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> in the specified style</p>
 <dl>
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">outpath</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Path to desired output folder/file</p>
@@ -87,7 +87,7 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.get_networkx">
 <code class="sig-name descname">get_networkx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_networkx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_networkx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a NetworkX <code class="docutils literal notranslate"><span class="pre">MultiDiGraph</span></code> equivalent to this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object</p>
@@ -97,7 +97,7 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.get_nodes">
 <code class="sig-name descname">get_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <code class="docutils literal notranslate"><span class="pre">set</span></code> of node labels in this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object</p>
@@ -107,9 +107,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.get_pair">
-<code class="sig-name descname">get_pair</code><span class="sig-paren">(</span><em class="sig-param">u</em>, <em class="sig-param">v</em>, <em class="sig-param">style='tuples'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_pair" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pair</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">style</span><span class="o">=</span><span class="default_value">'tuples'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the links between nodes <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p>
 <dl>
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">u</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): A node label</p>
@@ -126,9 +126,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.get_summary">
-<code class="sig-name descname">get_summary</code><span class="sig-paren">(</span><em class="sig-param">style='html'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_summary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">style</span><span class="o">=</span><span class="default_value">'html'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.get_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.get_summary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a summary of this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code></p>
 <dl class="simple">
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">style</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The representation of this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code></p>
@@ -138,7 +138,7 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.num_edges">
 <code class="sig-name descname">num_edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.num_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.num_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of (undirected) edges in this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object (including parallel edges)</p>
@@ -148,9 +148,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.num_links">
-<code class="sig-name descname">num_links</code><span class="sig-paren">(</span><em class="sig-param">u</em>, <em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.num_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.num_links" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">num_links</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.num_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.num_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of links between <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p>
 <dl>
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">u</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): A node label</p>
@@ -161,7 +161,7 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.num_nodes">
 <code class="sig-name descname">num_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.num_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.num_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of nodes in this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object</p>
@@ -171,7 +171,7 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.outlier_pairs">
 <code class="sig-name descname">outlier_pairs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.outlier_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.outlier_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict which student pairs are outliers (i.e., too many problem similarities).
@@ -183,9 +183,9 @@ where x = a number of links, and y = the number of student pairs with that many 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">outfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save this <code class="docutils literal notranslate"><span class="pre">MossNet</span></code> object as a 3D dictionary of MOSS results</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">outfile</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The desired output file’s path</p>
@@ -193,9 +193,9 @@ where x = a number of links, and y = the number of student pairs with that many 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="mossnet.MossNet.traverse_pairs">
-<code class="sig-name descname">traverse_pairs</code><span class="sig-paren">(</span><em class="sig-param">order='descending'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.traverse_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.traverse_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">traverse_pairs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="o">=</span><span class="default_value">'descending'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mossnet/MossNet.html#MossNet.traverse_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mossnet.MossNet.traverse_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over student pairs</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">order</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Order to sort pairs in iteration</p>
@@ -243,7 +243,7 @@ where x = a number of links, and y = the number of student pairs with that many 
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -262,7 +262,7 @@ where x = a number of links, and y = the number of student pairs with that many 
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Niema Moshiri.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

@@ -44,7 +44,7 @@ class MossNet:
                         left, right = u_v_links[f]
                     except:
                         raise TypeError("moss_results_dict must be a 3D dictionary of MOSS results")
-                    self.graph.add_edge(u, v, attr_dict = {'file':f, 'left':left, 'right':right})
+                    self.graph.add_edge(u, v, attr_dict = {'files':f, 'left':left, 'right':right})
 
     def save(self, outfile):
         '''Save this ``MossNet`` object as a 3D dictionary of MOSS results
@@ -58,7 +58,7 @@ class MossNet:
             for v in self.graph.neighbors(u):
                 u_v_links = dict(); u_edges[v] = u_v_links; u_v_edge_data = self.graph.get_edge_data(u,v)
                 for k in u_v_edge_data:
-                    edge = u_v_edge_data[k]['attr_dict']; u_v_links[edge['file']] = (edge['left'], edge['right'])
+                    edge = u_v_edge_data[k]['attr_dict']; u_v_links[edge['files']] = (edge['left'], edge['right'])
         if outfile.lower().endswith('.gz'):
             f = gopen(outfile, mode='wb', compresslevel=9)
         else:
@@ -117,17 +117,17 @@ class MossNet:
                 raise ValueError("Nonexistant node: %s" % node)
         links = self.graph.get_edge_data(u,v)
         out = dict()
-        for k in sorted(links.keys(), key=lambda x: links[x]['attr_dict']['file']):
+        for k in sorted(links.keys(), key=lambda x: links[x]['attr_dict']['files']):
             d = links[k]['attr_dict']
-            filename = d['file']
+            u_fn, v_fn = d['files']
             u_percent, u_html = d['left']
             v_percent, v_html = d['right']
             if style == 'tuples':
-                out[filename] = ((u_percent, u_html), (v_percent, v_html))
+                out[(u_fn, v_fn)] = ((u_percent, u_html), (v_percent, v_html))
             elif style in {'html', 'htmls'}:
-                out[filename] = '<html><table style="width:100%%" border="1"><tr><td colspan="2"><center><b>%s</b></center></td></tr><tr><td>%s (%d%%)</td><td>%s (%d%%)</td></tr><tr><td><pre>%s</pre></td><td><pre>%s</pre></td></tr></table></html>' % (filename, u, u_percent, v, v_percent, u_html, v_html)
+                out[(u_fn, v_fn)] = '<html><table style="width:100%%" border="1"><tr><td colspan="2"><center><b>%s/%s --- %s/%s</b></center></td></tr><tr><td>%s (%d%%)</td><td>%s (%d%%)</td></tr><tr><td><pre>%s</pre></td><td><pre>%s</pre></td></tr></table></html>' % (u, u_fn, v, v_fn, u, u_percent, v, v_percent, u_html, v_html)
         if style == 'html':
-            out = '<html>' + '<br>'.join(out[filename].replace('<html>','').replace('</html>','') for filename in sorted(out.keys())) + '</html>'
+            out = '<html>' + '<br>'.join(out[fns].replace('<html>','').replace('</html>','') for fns in sorted(out.keys())) + '</html>'
         return out
 
     def get_summary(self, style='html'):
@@ -141,24 +141,17 @@ class MossNet:
         '''
         if style not in {'html'}:
             raise ValueError("Invalid summary style: %s" % style)
-        links_by_file = dict() # links_by_file[filename] = list of (u, u_percent, v, v_percent) tuples
+        matches = list() # list of (u_path, u_percent, v_path, v_percent) tuples
         for u,v in self.traverse_pairs(order=None):
             links = self.graph.get_edge_data(u,v)
             for k in links:
                 d = links[k]['attr_dict']
-                filename = d['file']
+                u_fn, v_fn = d['files']
                 u_percent, u_html = d['left']
                 v_percent, v_html = d['right']
-                if filename not in links_by_file:
-                    links_by_file[filename] = list()
-                links_by_file[filename].append((u, u_percent, v, v_percent))
-        out = dict()
-        for filename in links_by_file:
-            out[filename] = '<html><table style="width:100%%" border="1"><tr><td colspan="2"><center><b>%s</b></center></td></tr>' % filename
-            for tup in sorted(links_by_file[filename], reverse=True, key=lambda x: max(x[1],x[3])):
-                out[filename] += '<tr><td>%s (%d%%)</td><td>%s (%d%%)</td></tr>' % tup
-            out[filename] += '</table></html>'
-        return out
+                matches.append(('%s/%s' % (u,u_fn), u_percent, '%s/%s' % (v,v_fn), v_percent))
+        matches.sort(reverse=True, key=lambda x: max(x[1],x[3]))
+        return '<html><table style="width:100%%" border="1">%s</table></html>' % ''.join(('<tr><td>%s (%d%%)</td><td>%s (%d%%)</td></tr>' % tup) for tup in matches)
 
     def num_links(self, u, v):
         '''Returns the number of links between ``u`` and ``v``
@@ -274,14 +267,10 @@ class MossNet:
 
         # export as folder of HTML files
         if style == 'html':
-            summaries = self.get_summary(style='html')
+            summary = self.get_summary(style='html')
             pairs = list(self.traverse_pairs(order=None))
             makedirs(outpath)
-            makedirs('%s/summary' % outpath)
-            for filename in summaries:
-                f = open("%s/summary/%s.html" % (outpath, filename), 'w')
-                f.write(summaries[filename])
-                f.close()
+            f = open('%s/summary.html' % outpath, 'w'); f.write(summary); f.close()
             for i,pair in enumerate(pairs):
                 if verbose:
                     print("Exporting pair %d of %d..." % (i+1, len(pairs)), end='\r')

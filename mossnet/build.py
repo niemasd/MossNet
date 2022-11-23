@@ -23,11 +23,14 @@ def build(moss_results_links, verbose=False):
         urls = [l.strip() for l in moss_results_links]
     links = dict()
     for url_num,url in enumerate(urls):
+        parsing_report_str = "Parsing MOSS report %d of %d..." % (url_num+1, len(urls))
         if verbose:
-            stderr.write("Parsing MOSS report %d of %d...\r" % (url_num+1, len(urls)))
+            stderr.write("%s\r" % parsing_report_str)
         bs = BeautifulSoup(urlopen(url).read().decode(), "lxml")
         curr_filename1 = None; curr_filename2 = None
-        for row in bs.findAll('tr'):
+        bs_findall = list(bs.findAll('tr'))
+        for row_num, row in enumerate(bs_findall):
+            stderr.write("%s Row %d of %d\r" % (parsing_report_str, row_num+1, len(bs_findall)))
             cols = row.findAll('td')
             if len(cols) != 3:
                 continue
